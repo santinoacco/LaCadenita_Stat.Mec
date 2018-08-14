@@ -15,6 +15,9 @@ plb.style.use('ggplot')
 N = 100 #Longitud de la cadena
 e_alfa = 2 #Enerfia de la particulas alfa
 e_beta = 3 #Energia de las particulas beta
+N = 200 #Longitud de la cadena
+e_alfa = 1 #Enerfia de la particulas alfa
+e_beta = 2 #Energia de las particulas beta
 k = c.Stefan_Boltzmann
 T0 = 0.1 #Temperatura
 a = 1 #Longitud de alfa
