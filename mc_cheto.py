@@ -15,7 +15,6 @@ E_prom=0
 #kk=np.zeros(1000)
 #E_prom=np.zeros(1000)
 f=open('archivito.txt','w')
-print('kT','Energias',file=f)
 #para obtener el grafico de muchos valores de E vs kT
 for num in range(1000):
 	kT=0.01+num/400.
