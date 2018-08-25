@@ -13,8 +13,8 @@ plb.style.use('ggplot')
 import time
 'Parametros'
 start_time = time.time()
-
-N = 200 #Longitud de la cadena
+S = 100
+N = 10 #Longitud de la cadena
 e_alfa = 1 #Enerfia de la particulas alfa
 e_beta = 2 #Energia de las particulas beta
 k = c.Stefan_Boltzmann
@@ -23,10 +23,12 @@ a = 1 #Longitud de alfa
 b = 2#Longitud de beta
 mcs = 100#Montecarlo steps
 
-'Definicion de alguna cadena de longitud N, dos estados posibles,1 alfa,0 beta'
-def Cadena(N):
-    return np.array([np.random.randint(0,2) for i in range(N)])
-
+# =============================================================================
+# 'Definicion de alguna cadena de longitud N, dos estados posibles,1 alfa,0 beta'
+# def Cadena(N):
+#     return np.array([np.random.randint(0,2) for i in range(N)])
+# 
+# =============================================================================
 'Cambiador del estado de una particula de la cadena'
 def Change(cadena):
     N = len(cadena)
@@ -52,7 +54,7 @@ def DeltaE(cadena,i):
         return (e_alfa-e_beta)
     else: return (e_beta - e_alfa) #caso contrario
     
-'Montecarlo Step a temperatura T, mezclo mcs veces'
+'Montecarlo Step a temperatura T, mezclo M veces'
 def MCS(cadena,kT,M  = N): 
     for j in range(M):
         potencial_cadena,i = Change(cadena) #me fijo que pasa cuando doy vuelta el estado de una particula. Tengo una potencial cadena nueva
@@ -62,19 +64,19 @@ def MCS(cadena,kT,M  = N):
             if np.random.random() < P(Delta,kT): cadena =  potencial_cadena
     return cadena #Si T es alta entonces va a ser posible ese cambio
             
-
-
-'Longitud de la cadena'
-def Longitud(cadena):return a*sum(cadena)+b*(len(cadena)-sum(cadena))
-            
+# =============================================================================
+# 'Longitud de la cadena'
+# def Longitud(cadena):return a*sum(cadena)+b*(len(cadena)-sum(cadena))
+# =============================================================================
+def Control(KT):return (N*e_beta + N*e_alfa*np.exp(-1/np.array(KT)*(e_alfa-e_beta)))/(np.exp(-1/np.array(KT)*(e_alfa-e_beta))+1)
 'Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'
-def Energia_Longitud(cadena,kT):
+def Energia_cadena(cadena,kT):
     Energias = []
 #    Longitudes = []
-    for i in range(1000000): #mezclo 100 veces
+    for i in range(100): #mezclo 100 veces
         cadena =  MCS(cadena,kT,M = N)
-    for i in range(1000000): #tomo 1000 medidas
-        cadena = MCS(cadena,kT,1)#Mezclo
+    for i in range(1000): #tomo 1000 medidas
+        cadena = MCS(cadena,kT,10)#Mezclo
         Energias.append(E(cadena)) #Mido la energia
 #        Longitudes.append(Longitud(cadena))#Mido la longitud
     Mean_Energy = np.mean(Energias)
@@ -82,26 +84,26 @@ def Energia_Longitud(cadena,kT):
     return Mean_Energy#,Mean_Longitudes
 
 #print('Longitud media = ',Mean_Longitudes,'\nEnergia Media = ',Mean_Energy)
+    
 'Esta es la parte que hace todo, calcula la energia media para S distintas temperaturas a partir de una T0'
-def Energia_per_temperatura(cadena,kT0,S = 50):
-    Temperaturas = []
-    Energy_per_temp = []
-    for i in range(S):
-        kT =kT0 + i*3./50
-        Temperaturas.append(kT)       
-        Energy_per_temp.append(Energia_Longitud(cadena,kT))
-        print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i])
-    return Temperaturas,Energy_per_temp #Dos listas:Temperaturas y enerrgias
+
 
 #################################################
+cadena = np.ones(N)#Crep cadena
 'Y aqui el script'
-cadena = Cadena(N)#Crep cadena
-Resultados = Energia_per_temperatura(cadena,kT0,10000)  # a partir de T0 obtengo resultados  
+KT = []
+Energy_per_temp = []
+for i in range(S):
+    kT =kT0 + i*3./S
+    KT.append(kT)       
+    Energy_per_temp.append(Energia_cadena(cadena,kT))
+    print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
 #Ploteo
 fig = plb.figure(1)
-plb.xlabel('Temperatura',fontsize = 20)
+plb.xlabel('KT',fontsize = 20)
 plb.ylabel('Energy_per_temp',fontsize = 20)
-plb.scatter(Resultados[0],Resultados[1])
-print("--- %s seconds ---" % (time.time() - start_time))
+plb.scatter(KT,Energy_per_temp)
+plb.plot(KT,Control(np.array(KT)),c = 'k')
+print("--- %s seconds ---" % (round(time.time() - start_time),2))
         
     
