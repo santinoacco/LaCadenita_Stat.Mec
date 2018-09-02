@@ -69,26 +69,22 @@ def Control(KT):
     E_control = (N*e_beta + N*e_alfa*np.exp(-1/np.array(KT)*(e_alfa-e_beta)))/(np.exp(-1/np.array(KT)*(e_alfa-e_beta))+1)
     return E_control
 
-'''Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'''
 def Energia_cadena(cadena,kT):
     Energias = []
     Energias2 = []
     for i in range(100): #mezclo 100 veces
         cadena =  MCS(cadena,kT,M = N)
-    for i in range(1000): #tomo 1000 medidas
-        cadena = MCS(cadena,kT,10)#Mezclo
-        EE=E(cadena)
-        EE2=EE**2
-        Energias.append(EE) #Mido la energia
-        Energias2.append(EE2) #Mido <E^2>
+    for j in range(1000): #tomo 1000 medidas
+            cadena = MCS(cadena,kT,10)#Mezclo
+            EE=E(cadena)
+            EE2=EE**2
+            Energias.append(EE) #Mido la energia
+            Energias2.append(EE2) #Mido <E^2>
     Mean_Energy = np.mean(Energias)
     Mean_Energy_Square = np.mean(Energias2)
-
-    return Mean_Energy, Mean_Energy_Square
-
-def Varianza_E(cadena,kT): #sigma^2 = <E^2>-<E>^2
-    var = Energia_cadena(cadena,kT)[1] - Energia_cadena(cadena,kT)[0]**2
-    return var
+    var = Mean_Energy_Square - Mean_Energy**2 
+    
+    return Mean_Energy, Mean_Energy_Square, var
 
 
     
@@ -106,9 +102,13 @@ Var=[] #varianza de la energía
 for i in range(S):
     kT =kT0 + i*3./S
     KT.append(kT)
-    E_media= Energia_cadena(cadena,kT)[0]      
+    E_media= Energia_cadena(cadena,kT)[0]
+    varianza = Energia_cadena(cadena,kT)[2]
     Energy_per_temp.append(E_media)
-    Var.append(Varianza_E(cadena,kT))
+    Var.append(varianza)
+#==============================================================================
+#     Var.append(Varianza_E(cadena,kT))
+#==============================================================================
     
     
     auxL=length(E_media) #calculo el valor esperado de L[i]
@@ -118,9 +118,7 @@ for i in range(S):
     
     
     
-#==============================================================================
-#     print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
-#==============================================================================
+    print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
     
 '''Graficamos'''
 fig = plb.figure(1)
@@ -140,6 +138,7 @@ fig = plb.figure(3)
 plb.xlabel('kT',fontsize = 20)
 plb.ylabel('Varianza de Energia',fontsize = 20)
 plb.plot(KT,Var,'b.')
+
 
 
 print("--- %s seconds ---" % (round(time.time() - start_time),2))
