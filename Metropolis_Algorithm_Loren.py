@@ -13,27 +13,19 @@ plb.style.use('ggplot')
 import time
 'Parametros'
 start_time = time.time()
-S = 200
 N = 10 #Longitud de la cadena
-e_alfa = 1 #Enerfia de la particulas alfa
-e_beta = 2 #Energia de las particulas beta
 k = c.Stefan_Boltzmann
 kT0 = 0.1 #Temperatura
 a = 1 #Longitud de alfa
 b = 2#Longitud de beta
 mcs = 100#Montecarlo steps
 
-
 '''Cambiador del estado de una particula de la cadena'''
 def Change(cadena):
-    N = len(cadena)
     i = np.random.randint(0,N)
     change = cp.deepcopy(cadena)
-    if change[i]==1: change[i] = 0 #cambio de particula alfa a beta
-    else:change[i]=1 #cambio de beta a alfa
     return change,i #devuelve una nueva cadena junto con el indice del cambio
 
-'''Maxwell Distribution Probability'''
 def P(E,kT):
     beta = 1./(kT)
     return np.exp(-beta*E)
@@ -48,20 +40,12 @@ def length(Mean_E): #se calcula a partir del valor medio de la Energia.. es deci
     long = b*N+(a-b)*((Mean_E-N*e_beta)/(e_beta-e_alfa))
     return long
 
-'Variacion de la energia al cambiiar el estado de una particula'
-def DeltaE(cadena,i):
-    if cadena[i]==1: #Si el cambio es de una particula beta a una alfa
-        return (e_alfa-e_beta)
-    else: return (e_beta - e_alfa) #caso contrario
     
-'Montecarlo Step a temperatura T, mezclo M veces'
 def MCS(cadena,kT,M  = N): 
     for j in range(M):
         potencial_cadena,i = Change(cadena) #me fijo que pasa cuando doy vuelta el estado de una particula. Tengo una potencial cadena nueva
-        Delta = DeltaE(potencial_cadena,i)
         if Delta <0: cadena = potencial_cadena
         else:
-            if np.random.random() < P(Delta,kT): cadena =  potencial_cadena
     return cadena #Si T es alta entonces va a ser posible ese cambio
             
 '''Calculamos la energía analiticamente para 2 estados'''
@@ -94,15 +78,20 @@ def Varianza_E(cadena,kT): #sigma^2 = <E^2>-<E>^2
     
 '''Esta es la parte que hace todo, calcula la energia media para S distintas temperaturas a partir de una T0'''
 
+#    Mean_Longitudes = np.mean(Longitudes)
+    return Mean_Energy#,Mean_Longitudes
 
 #################################################
 cadena = np.ones(N)#Crep cadena
 '''Y aqui el script''' 
+cadena = list(np.ones(N))#Crep cadena
+'''Y aqui el script'''
 KT = []
 Energy_per_temp = [] #energia por kT
 L=[] #longitud por kT
 L_c=[]#longitud de control, utiliza la funcion Control para calcular la energía
 Var=[] #varianza de la energía
+Energy_per_temp = []
 for i in range(S):
     kT =kT0 + i*3./S
     KT.append(kT)
@@ -144,3 +133,10 @@ plb.plot(KT,Var,'b.')
 
 print("--- %s seconds ---" % (round(time.time() - start_time),2))
 
+plb.xlabel('KT',fontsize = 20)
+plb.ylabel('Energy_per_temp',fontsize = 20)
+plb.scatter(KT,Energy_per_temp)
+#plb.plot(KT,Control(np.array(KT)),c = 'k')
+print("--- %s seconds ---" % (round(time.time() - start_time,2)))
+        
+    
