@@ -51,11 +51,6 @@ def Mapeo_energia(i):
     if i == -1:return e_g
 
 '''Energia de la cadena'''
-def E(cadena):#Definir e_alfa y e_beta    
-    N = len(cadena)
-    alfa = sum(cadena) #el numero de alfas es el total de 1's en la cadena
-    return e_alfa*alfa + e_beta*(N-alfa)
-'''Longitud de la cadena'''
 def E(cadena):#Definir e_alfa y e_beta       
     alfa = cadena.count(0)
     beta = cadena.count(1)
@@ -78,6 +73,11 @@ def MCS(cadena,kT,M  = N):
        # print(cadena)
     return cadena #Si T es alta entonces va a ser posible ese cambio
             
+# =============================================================================
+# 'Longitud de la cadena'
+# def Longitud(cadena):return a*sum(cadena)+b*(len(cadena)-sum(cadena))
+# =============================================================================
+#def Control(KT):return (N*e_beta + N*e_alfa*np.exp(-1/np.array(KT)*(e_alfa-e_beta)))/(np.exp(-1/np.array(KT)*(e_alfa-e_beta))+1)
 '''Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'''
 def Energia_cadena(cadena,kT):
     Energias = []
@@ -93,14 +93,13 @@ def Energia_cadena(cadena,kT):
     return Mean_Energy#,Mean_Longitudes
 
 #################################################
-cadena = np.ones(N)#Crep cadena
-'''Y aqui el script''' 
 cadena = list(np.ones(N))#Crep cadena
 '''Y aqui el script'''
 KT = []
 Energy_per_temp = []
 for i in range(S):
     kT =kT0 + i*3./S
+    KT.append(kT)       
     Energy_per_temp.append(Energia_cadena(cadena,kT))
     print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
 #Ploteo
