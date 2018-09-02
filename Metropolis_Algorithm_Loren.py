@@ -73,17 +73,26 @@ def MCS(cadena,kT,M  = N):
        # print(cadena)
     return cadena #Si T es alta entonces va a ser posible ese cambio
             
+<<<<<<< HEAD
 # =============================================================================
 # 'Longitud de la cadena'
 # def Longitud(cadena):return a*sum(cadena)+b*(len(cadena)-sum(cadena))
 # =============================================================================
 #def Control(KT):return (N*e_beta + N*e_alfa*np.exp(-1/np.array(KT)*(e_alfa-e_beta)))/(np.exp(-1/np.array(KT)*(e_alfa-e_beta))+1)
 '''Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'''
+=======
+'''Calculamos la energía analiticamente para 2 estados'''
+def Control(KT):
+    E_control = (N*e_beta + N*e_alfa*np.exp(-1/np.array(KT)*(e_alfa-e_beta)))/(np.exp(-1/np.array(KT)*(e_alfa-e_beta))+1)
+    return E_control
+
+>>>>>>> master
 def Energia_cadena(cadena,kT):
     Energias = []
 #    Longitudes = []
     for i in range(1000): #mezclo 100 veces
         cadena =  MCS(cadena,kT,M = N)
+<<<<<<< HEAD
     for i in range(1000): #tomo 1000 medidas
         cadena = MCS(cadena,kT,10)#Mezclo
         Energias.append(E(cadena)) #Mido la energia
@@ -91,6 +100,24 @@ def Energia_cadena(cadena,kT):
     Mean_Energy = np.mean(Energias)
 #    Mean_Longitudes = np.mean(Longitudes)
     return Mean_Energy#,Mean_Longitudes
+=======
+    for j in range(1000): #tomo 1000 medidas
+            cadena = MCS(cadena,kT,10)#Mezclo
+            EE=E(cadena)
+            EE2=EE**2
+            Energias.append(EE) #Mido la energia
+            Energias2.append(EE2) #Mido <E^2>
+    Mean_Energy = np.mean(Energias)
+    Mean_Energy_Square = np.mean(Energias2)
+    var = Mean_Energy_Square - Mean_Energy**2 
+    
+    return Mean_Energy, Mean_Energy_Square, var
+
+
+    
+'''Esta es la parte que hace todo, calcula la energia media para S distintas temperaturas a partir de una T0'''
+
+>>>>>>> master
 
 #################################################
 cadena = list(np.ones(N))#Crep cadena
@@ -99,6 +126,7 @@ KT = []
 Energy_per_temp = []
 for i in range(S):
     kT =kT0 + i*3./S
+<<<<<<< HEAD
     KT.append(kT)       
     Energy_per_temp.append(Energia_cadena(cadena,kT))
     print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
@@ -111,3 +139,47 @@ plb.scatter(KT,Energy_per_temp)
 print("--- %s seconds ---" % (round(time.time() - start_time,2)))
         
     
+=======
+    KT.append(kT)
+    E_media= Energia_cadena(cadena,kT)[0]
+    varianza = Energia_cadena(cadena,kT)[2]
+    Energy_per_temp.append(E_media)
+    Var.append(varianza)
+#==============================================================================
+#     Var.append(Varianza_E(cadena,kT))
+#==============================================================================
+    
+    
+    auxL=length(E_media) #calculo el valor esperado de L[i]
+    L.append(auxL)
+    auxL2=length(Control(kT))
+    L_c.append(auxL2)
+    
+    
+    
+    print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
+    
+'''Graficamos'''
+fig = plb.figure(1)
+plb.xlabel('kT',fontsize = 20)
+plb.ylabel('Energia',fontsize = 20)
+plb.plot(KT,Energy_per_temp,'r.')
+plb.plot(KT,Control(np.array(KT)),'k-')
+
+#=====================================
+fig = plb.figure(2)
+plb.xlabel('kT',fontsize = 20)
+plb.ylabel('Longitud',fontsize = 20)
+plb.plot(KT,L,'g.')
+plb.plot(KT,L_c,'k-')
+#=====================================
+fig = plb.figure(3)
+plb.xlabel('kT',fontsize = 20)
+plb.ylabel('Varianza de Energia',fontsize = 20)
+plb.plot(KT,Var,'b.')
+
+
+
+print("--- %s seconds ---" % (round(time.time() - start_time),2))
+
+>>>>>>> master
