@@ -21,19 +21,15 @@ a=1
 b=2
 e1=-1
 e2=1
+
+N=10 #cantidad de sitios
+mcs=2*N #cantidad de pasos MonteCarlo
+k=C.Boltzmann #const de Boltzmann en J/K
+=======
 N=100 #cantidad de sitios
 mcs=10*N #cantidad de pasos MonteCarlo
 #k=C.Boltzmann #const de Boltzmann en J/K
-#k2=C.Stefan_Boltzmann #const de Boltzmann en eV/K
-#T=300 #temperatura en grados Kelvin
 
-Mean_E=0
-Mean_L=0
-mean_E2=0
-#auxiliares
-Eaux=0
-Laux=0
-Ea2ux=0
 #=============================================================================#
 
 #-------#
