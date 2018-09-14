@@ -13,15 +13,16 @@ plb.style.use('ggplot')
 import time
 'Parametros'
 start_time = time.time()
-S = 100
+S = 1000
 N = 10 #Longitud de la cadena
-e_alfa = 1 #Enerfia de la particulas alfa
-e_beta = 2 #Energia de las particulas beta
+e_alfa = -1 #Enerfia de la particulas alfa
+e_beta = 1 #Energia de las particulas beta
 k = c.Stefan_Boltzmann
 kT0 = 0.1 #Temperatura
 a = 1 #Longitud de alfa
 b = 2#Longitud de beta
 mcs = 100#Montecarlo steps
+HastaDonde = 5#KtMax
 
 # =============================================================================
 # 'Definicion de alguna cadena de longitud N, dos estados posibles,1 alfa,0 beta'
@@ -94,10 +95,10 @@ cadena = np.ones(N)#Crep cadena
 KT = []
 Energy_per_temp = []
 for i in range(S):
-    kT =kT0 + i*3./S
+    kT =kT0 + i*HastaDonde/S
     KT.append(kT)       
     Energy_per_temp.append(Energia_cadena(cadena,kT))
-    print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
+#    print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
 #Ploteo
 fig = plb.figure(1)
 plb.xlabel('KT',fontsize = 20)
