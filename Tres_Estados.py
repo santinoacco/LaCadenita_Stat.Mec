@@ -6,10 +6,10 @@ Created on Sun Sep  2 21:06:09 2018
 """
 
 import numpy as np
-import matplotlib.pylab as plb
-import copy as cp
+import matplotlib.pyplot as plb
 plb.style.use('ggplot')
 import time
+import random as rn
 'Parametros'
 start_time = time.time()
 S = 100
@@ -20,49 +20,52 @@ e_c = 2 #Energia de las particulas c
 kT0 = 0.1 #Temperatura
 a = 1 #Longitud de a
 b = 2 #Longitud de b
-c = 3
+c = 3 #Longitud de c
 mcs = 100#Montecarlo steps
 
 
-'''Cambiador del estado de una particula de la cadena'''
-def Change(cadena):
-    i = np.random.randint(0,N)
-    change = cp.deepcopy(cadena)
-    if change[i]==1: change[i] = 0 #cambio de particula alfa a beta
-    else:change[i]=1 #cambio de beta a alfa
-    return change,i #devuelve una nueva cadena junto con el indice del cambio
-
-
 '''Energia de la cadena'''
-def E(cadena):#Definir e_alfa y e_beta con count
-#==============================================================================
-#     count(e_a)
-#     count(e_b)
-#==============================================================================
-    a = sum(cadena) #el numero de alfas es el total de 1's en la cadena
-    return e_a*a + e_b*(N-a)
+def Energia(cadena):#Definir e_alfa y e_beta con count
+    num_a = cadena.count(e_a)
+    num_b = cadena.count(e_b)
+    energia = e_a*num_a +e_b*num_b + (N-num_a-num_b)*e_c 
+    return energia
 
 '''Longitud de la cadena'''
 def length(Mean_E): #se calcula a partir del valor medio de la Energia.. es decir por la funcion Energia_cadena
     long = b*N+(a-b)*((Mean_E-N*e_b)/(e_b-e_a))
     return long
 
-'Variacion de la energia al cambiiar el estado de una particula'
-def DeltaE(cadena,i):
-    if cadena[i]==1: #Si el cambio es de una particula beta a una alfa
-        return (e_a-e_b)
-    else: return (e_b - e_a) #caso contrario
     
-'Montecarlo Step a temperatura T, mezclo M veces'
+'''Mapeo de estado a energía'''    
+def Mapeo(rand):
+    if rand == 0:
+        e_rand = e_a
+    elif rand == 1:
+        e_rand = e_b
+    elif rand == 2:
+        e_rand = e_c
+    return e_rand
+    
+'''Montecarlo Step a temperatura T, mezclo M veces'''
 def MCS(cadena,kT,M  = N): 
     for j in range(M):
-        potencial_cadena,i = Change(cadena) #me fijo que pasa cuando doy vuelta el estado de una particula. Tengo una potencial cadena nueva
-        Delta = DeltaE(potencial_cadena,i)
-        if Delta <0: cadena = potencial_cadena
+        r1 = rn.randint(0,2) #define energía del nuevo estado
+        r2 = rn.randint(0,N-1)
+        while r1 == cadena[r2]:
+             r1 = rn.randint(0,2)
+
+        DeltaE = Mapeo(r1) - Mapeo(cadena[r2])
+        
+        if DeltaE<0:
+            cadena[r2] = r1
         else:
-            if np.random.random() < np.exp(-Delta/(kT)): cadena =  potencial_cadena
-    return cadena #Si T es alta entonces va a ser posible ese cambio
-            
+            r3 = rn.random()
+            if r3 < (np.exp(-DeltaE/kT)):
+                cadena[r2] = r1
+    
+    return cadena
+
 '''Calculamos la energía analiticamente para 2 estados'''
 def Control(KT):
     E_control = (N*e_b + N*e_a*np.exp(-1/np.array(KT)*(e_a-e_b)))/(np.exp(-1/np.array(KT)*(e_a-e_b))+1)
@@ -76,10 +79,10 @@ def Energia_cadena(cadena,kT):
         cadena =  MCS(cadena,kT,M = N)
     for j in range(1000): #tomo 1000 medidas
             cadena = MCS(cadena,kT,10)#Mezclo
-            EE=E(cadena)
-            EE2=EE**2
-            Energias.append(EE) #Mido la energia
-            Energias2.append(EE2) #Mido <E^2>
+            E=Energia(cadena)
+            E2=E**2
+            Energias.append(E) #Mido la energia
+            Energias2.append(E2) #Mido <E^2>
     Mean_Energy = np.mean(Energias)
     Mean_Energy_Square = np.mean(Energias2)
     var = Mean_Energy_Square - Mean_Energy**2 
@@ -92,7 +95,10 @@ def Energia_cadena(cadena,kT):
 
 
 #################################################
-cadena = np.ones(N)#Crep cadena
+cadena = N*[2] #Creo cadena
+#==============================================================================
+# print(cadena)
+#==============================================================================
 '''Y aqui el script''' 
 KT = []
 Energy_per_temp = [] #energia por kT
@@ -106,10 +112,6 @@ for i in range(S):
     varianza = Energia_cadena(cadena,kT)[2]
     Energy_per_temp.append(E_media)
     Var.append(varianza)
-#==============================================================================
-#     Var.append(Varianza_E(cadena,kT))
-#==============================================================================
-    
     
     auxL=length(E_media) #calculo el valor esperado de L[i]
     L.append(auxL)
@@ -118,26 +120,31 @@ for i in range(S):
     
     
     
-    print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
+#==============================================================================
+#     print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
+#==============================================================================
     
 '''Graficamos'''
 fig = plb.figure(1)
 plb.xlabel('kT',fontsize = 20)
 plb.ylabel('Energia',fontsize = 20)
 plb.plot(KT,Energy_per_temp,'r.')
-plb.plot(KT,Control(np.array(KT)),'k-')
+plb.plot(KT,Control(np.array(KT)),'k-',label = '2-State control')
 #=====================================
 fig = plb.figure(2)
 plb.xlabel('kT',fontsize = 20)
 plb.ylabel('Longitud',fontsize = 20)
 plb.plot(KT,L,'g.')
-plb.plot(KT,L_c,'k-')
+plb.plot(KT,L_c,'k-',label = '2-State control')
 #=====================================
 fig = plb.figure(3)
 plb.xlabel('kT',fontsize = 20)
 plb.ylabel('Varianza de Energia',fontsize = 20)
 plb.plot(KT,Var,'b.')
+plb.legend()
+plb.show()
 
-
-print("--- %s seconds ---" % (round(time.time() - start_time),2))
+#==============================================================================
+# print("--- %s seconds ---" % (round(time.time() - start_time),2))
+#==============================================================================
 
