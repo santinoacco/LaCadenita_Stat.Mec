@@ -36,18 +36,23 @@ def E(cadena):#Definir e_alfa y e_beta con count
     a = sum(cadena) #el numero de alfas es el total de 1's en la cadena
     E0=e_a*a + e_b*(N-a)
     E_int=E_interaccion(cadena,Alcance)
-    eneryi=E0+E_int
+    eneryi=E0-E_int
     return eneryi
 
 #esto calcula la energia asociada con la interaccion que hayas puesto
-def E_interaccion(cadena,num_vecinos):
+def E_interaccion(states,num_vecinos):
     E=0
-    for cont in range(N):
-        
-
+    for sitio in range(N-1):
+        for lugar in range(sitio+1,sitio+num_vecinos+1):
+            if sitio+num_vecinos+1<=N:
+                #J es el tipo de interaccion (aca esta puesta la de la inversa de la distancia)
+                J=1./np.abs(sitio-lugar)
+                E+=J*Mapeo(states[sitio])*Mapeo(states[lugar])
+    return E
+                           
 '''Longitud de la cadena'''
-def length(Mean_E): #se calcula a partir del valor medio de la Energia.. es decir por la funcion Energia_cadena
-    long = b*N+(a-b)*((Mean_E-N*e_b)/(e_b-e_a))
+def length(n_a): #se calcula a partir del valor medio de la Energia.. es decir por la funcion Energia_cadena
+    long = b*(N-n_a)+a*n_a
     return long
 
 'Variacion de la energia al cambiiar el estado de una particula'
@@ -66,13 +71,14 @@ def DeltaE_int(oldcadena,newcadena,i):
 #la funcion "suma" calcula la suma de la energia toda la cadena sin contar el sitio que le indicas
 #"sitio" es la posicion donde esta parado y "num_vecinos" hasta que vecino queres que considere pa interatuar
 #aca podes cambiar el tipo de interaccion modificando "interaccion"
-def suma(cadena,sitio,num_vecinos):
+def suma(states,sitio,num_vecinos):
     total=0
-    for i in range(N-1):
-        if i !=sitio and np.abs(sitio-i)<=num_vecinos:
+    for i in range(N):
+        distancia=np.abs(sitio-i)
+        if i !=sitio and distancia<=num_vecinos:
                 #en este caso es la aburrida inversa de la distancia
-                interaccion=1./np.abs(sitio-i)
-                total+=interaccion*Mapeo(cadena[i])
+                interaccion=1./distancia
+                total+=interaccion*Mapeo(states[i])
     return total
     
 'Montecarlo Step a temperatura T, mezclo M veces'
@@ -96,6 +102,7 @@ def Control(KT):
 def Energia_cadena(cadena,kT):
     Energias = []
     Energias2 = []
+    n=[]
     for i in range(100): #mezclo 100 veces
         cadena =  MCS(cadena,kT,M = N)
     for j in range(1000): #tomo 1000 medidas
@@ -104,12 +111,13 @@ def Energia_cadena(cadena,kT):
             EE2=EE**2
             Energias.append(EE) #Mido la energia
             Energias2.append(EE2) #Mido <E^2>
+            n.append(sum(cadena))
     Mean_Energy = np.mean(Energias)
     Mean_Energy_Square = np.mean(Energias2)
     var = Mean_Energy_Square - Mean_Energy**2 
-    
-    return Mean_Energy, Mean_Energy_Square, var
-
+    n_a=np.mean(n)
+    return Mean_Energy, n_a, var
+#como el vector cadena tiene como componentes 0 y 1 esto asigna las energias segun el valor de la componente
 def Mapeo(numerito):
     if numerito==1:
         return e_a
@@ -126,18 +134,12 @@ Var=[] #varianza de la energia
 for i in range(S):
     kT =kT0 + i*3./S
     KT.append(kT)
-    E_media= Energia_cadena(cadena,kT)[0]
-    varianza = Energia_cadena(cadena,kT)[2]
+    E_media, num_a, varianza= Energia_cadena(cadena,kT)
     Energy_per_temp.append(E_media)
     Var.append(varianza)
-#==============================================================================
-#     Var.append(Varianza_E(cadena,kT))
-#==============================================================================
+    auxL=length(num_a) #calculo el valor esperado de L[i]
+    L.append(auxL)
 
-#    auxL=length(E_media) #calculo el valor esperado de L[i]
-#    L.append(auxL)
-#    auxL2=length(Control(kT))
-#L_c.append(auxL2)
 import matplotlib.pyplot as plt
 plt.plot(KT,Energy_per_temp,'r.')
 plt.plot(KT,Control(KT),'b.')
