@@ -12,7 +12,7 @@ import time
 import random as rn
 'Parametros'
 start_time = time.time()
-S = 100
+S = 300
 N = 10 #Longitud de la cadena
 e_a = 0 #Enerfia de la particulas a
 e_b = 1 #Energia de las particulas b
@@ -21,7 +21,7 @@ kT0 = 0.1 #Temperatura
 a = 1 #Longitud de a
 b = 2 #Longitud de b
 c = 3 #Longitud de c
-mcs = 100#Montecarlo steps
+mcs = 100*N#Montecarlo steps
 
 
 '''Energia de la cadena'''
@@ -68,7 +68,7 @@ def MCS(cadena,kT,M  = N):
 
 '''Calculamos la energía analiticamente para 2 estados'''
 def Control(KT):
-    E_control = (N*e_b + N*e_a*np.exp(-1/np.array(KT)*(e_a-e_b)))/(np.exp(-1/np.array(KT)*(e_a-e_b))+1)
+    E_control = N*(e_b*np.exp(-1/KT*e_b)+e_c*np.exp(-1/KT*e_c)+ e_a*np.exp(-1/KT*e_a))/(np.exp(-1/KT*e_b)+np.exp(-1/KT*e_c)+np.exp(-1/KT*e_a))
     return E_control
 
 '''Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'''
@@ -87,7 +87,7 @@ def Energia_cadena(cadena,kT):
     Mean_Energy_Square = np.mean(Energias2)
     var = Mean_Energy_Square - Mean_Energy**2 
     
-    return Mean_Energy, Mean_Energy_Square, var
+    return Mean_Energy, var
 
 
     
@@ -104,15 +104,15 @@ KT = []
 Energy_per_temp = [] #energia por kT
 L=[] #longitud por kT
 L_c=[]#longitud de control, utiliza la funcion Control para calcular la energía
-Var=[] #varianza de la energía
+Calor=[] #calor especifico
+from scipy.constants import Boltzmann as k
 for i in range(S):
     kT =kT0 + i*3./S
     KT.append(kT)
-    E_media= Energia_cadena(cadena,kT)[0]
-    varianza = Energia_cadena(cadena,kT)[2]
+    E_media, varianza= Energia_cadena(cadena,kT)
     Energy_per_temp.append(E_media)
-    Var.append(varianza)
-    
+    c_v=varianza/(kT**2)*k**2
+    Calor.append(c_v)
     auxL=length(E_media) #calculo el valor esperado de L[i]
     L.append(auxL)
     auxL2=length(Control(kT))
