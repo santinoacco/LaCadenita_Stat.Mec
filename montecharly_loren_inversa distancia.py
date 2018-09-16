@@ -130,13 +130,15 @@ KT = []
 Energy_per_temp = [] #energia por kT
 L=[] #longitud por kT
 L_c=[]#longitud de control, utiliza la funcion Control para calcular la energia
-Var=[] #varianza de la energia
+Calor=[] #calor especifico
+from scipy.constants import Boltzmann as k
 for i in range(S):
     kT =kT0 + i*10./S
     KT.append(kT)
     E_media, num_a, varianza= Energia_cadena(cadena,kT)
     Energy_per_temp.append(E_media)
-    Var.append(varianza)
+    c_v=varianza/(kT**2)*k**2
+    Calor.append(c_v)
     auxL=length(num_a) #calculo el valor esperado de L[i]
     L.append(auxL)
 
@@ -152,4 +154,10 @@ fig = plt.figure(2)
 plt.xlabel('kT',fontsize = 20)
 plt.ylabel('Longitud',fontsize = 20)
 plt.plot(KT,L,'g.')
+#=====================================
+fig = plb.figure(3)
+plb.xlabel('kT',fontsize = 20)
+plb.ylabel('Calor especifico',fontsize = 20)
+plb.plot(KT,Calor,'b.')
+plb.legend()
 plt.show()
