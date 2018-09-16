@@ -71,7 +71,7 @@ def Control(KT):
     E_control = N*(e_b*np.exp(-1/KT*e_b)+e_c*np.exp(-1/KT*e_c)+ e_a*np.exp(-1/KT*e_a))/(np.exp(-1/KT*e_b)+np.exp(-1/KT*e_c)+np.exp(-1/KT*e_a))
     return E_control
 
-'''Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'''
+'''Mido la longitud y la energia media de la cadena, a una dada temperatura'''
 def Energia_cadena(cadena,kT):
     Energias = []
     Energias2 = []
@@ -123,28 +123,24 @@ for i in range(S):
 #==============================================================================
 #     print('iteracion = ',i,'kT =',round(kT,2),'Energy=',Energy_per_temp[i]) 
 #==============================================================================
-    
+print("--- %s seconds ---" % round((time.time() - start_time),2)) 
 '''Graficamos'''
 fig = plb.figure(1)
 plb.xlabel('kT',fontsize = 20)
 plb.ylabel('Energia',fontsize = 20)
 plb.plot(KT,Energy_per_temp,'r.')
-plb.plot(KT,Control(np.array(KT)),'k-',label = '2-State control')
+plb.plot(KT,Control(np.array(KT)),'k-')
 #=====================================
 fig = plb.figure(2)
 plb.xlabel('kT',fontsize = 20)
 plb.ylabel('Longitud',fontsize = 20)
 plb.plot(KT,L,'g.')
-plb.plot(KT,L_c,'k-',label = '2-State control')
+plb.plot(KT,L_c,'k-')
 #=====================================
 fig = plb.figure(3)
 plb.xlabel('kT',fontsize = 20)
-plb.ylabel('Varianza de Energia',fontsize = 20)
-plb.plot(KT,Var,'b.')
+plb.ylabel('Calor especifico',fontsize = 20)
+plb.plot(KT,Calor,'b.')
 plb.legend()
 plb.show()
-
-#==============================================================================
-# print("--- %s seconds ---" % (round(time.time() - start_time),2))
-#==============================================================================
 
