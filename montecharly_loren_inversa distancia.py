@@ -5,7 +5,7 @@ import time
 start_time = time.time()
 S = 100
 N = 10 #Longitud de la cadena
-#e_a = 0 #Enerfia de la particulas a
+#e_a = 0 #Energia de la particulas a
 e_a=-1
 e_b = 1 #Energia de las particulas b
  #Energia de las particulas c
@@ -55,7 +55,7 @@ def length(n_a): #se calcula a partir del valor medio de la Energia.. es decir p
     long = b*(N-n_a)+a*n_a
     return long
 
-'Variacion de la energia al cambiiar el estado de una particula'
+'Variacion de la energia al cambiar el estado de una particula'
 def DeltaE(cadena,i):
     if cadena[i]==1: #Si el cambio es de una particula beta a una alfa
         return (e_a-e_b)
@@ -98,7 +98,7 @@ def Control(KT):
     E_control = (N*e_b + N*e_a*np.exp(-1/np.array(KT)*(e_a-e_b)))/(np.exp(-1/np.array(KT)*(e_a-e_b))+1)
     return E_control
 
-'''Mido la llongitud y la enrgia media de la cadena, a una dada temperatura'''
+'''Mido la longitud y la energia media de la cadena, a una dada temperatura'''
 def Energia_cadena(cadena,kT):
     Energias = []
     Energias2 = []
@@ -132,7 +132,7 @@ L=[] #longitud por kT
 L_c=[]#longitud de control, utiliza la funcion Control para calcular la energia
 Var=[] #varianza de la energia
 for i in range(S):
-    kT =kT0 + i*3./S
+    kT =kT0 + i*10./S
     KT.append(kT)
     E_media, num_a, varianza= Energia_cadena(cadena,kT)
     Energy_per_temp.append(E_media)
@@ -140,7 +140,16 @@ for i in range(S):
     auxL=length(num_a) #calculo el valor esperado de L[i]
     L.append(auxL)
 
+print("--- %s seconds ---" % round((time.time() - start_time),2))
+##GRAFICOS##
 import matplotlib.pyplot as plt
+fig = plt.figure(1)
+plt.xlabel('kT',fontsize = 20)
+plt.ylabel('Energia',fontsize = 20)
 plt.plot(KT,Energy_per_temp,'r.')
-plt.plot(KT,Control(KT),'b.')
+#=====================================
+fig = plt.figure(2)
+plt.xlabel('kT',fontsize = 20)
+plt.ylabel('Longitud',fontsize = 20)
+plt.plot(KT,L,'g.')
 plt.show()
